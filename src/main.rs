@@ -1,3 +1,7 @@
+mod generate;
+mod routes;
+mod models;
+
 use std::io;
 use std::io::Write;
 use llama_cpp_rs::{
@@ -5,22 +9,11 @@ use llama_cpp_rs::{
     LLama,
 };
 
-fn gen_options() -> PredictOptions {
-    let predict_options = PredictOptions {
-        tokens: 0,
-        threads: 14,
-        top_k: 90,
-        top_p: 0.86,
-        token_callback: Some(Box::new(|token| {
-            print!("{}", token);
-            io::stdout().flush().expect("If your seeing this reconsider life choices");
-            true
-        })),
-        ..Default::default()
-    };
-    return predict_options;
-}
-fn main() {
+//Enable Rocket
+#[macro_use] extern crate rocket;
+
+#[launch]
+fn rocket() -> _ {
     println!("Setting up llama..");
     let model_options = ModelOptions {
         n_gpu_layers: 12,
@@ -50,12 +43,13 @@ fn main() {
             break;
         }
 
-        llama
-            .predict(
-                input.clone(),
-                gen_options(),
-            )
-            .unwrap();
+        let llama_output = generate::llama_generate(
+            input.clone(),
+            llama.clone(),
+            generate::gen_options()
+        );
+        println!("{}", llama_output); //TODO: switch this to a log based output
     }
+    rocket::build().mount("/", routes![index])
 }
 
