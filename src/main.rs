@@ -50,6 +50,6 @@ fn rocket() -> _ {
         );
         println!("{}", llama_output); //TODO: switch this to a log based output
     }
-    rocket::build().mount("/", routes![index])
+    rocket::build().mount("/api", routes![routes::generate, routes::ping])
 }
 

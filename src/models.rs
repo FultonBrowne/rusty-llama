@@ -1,4 +1,3 @@
-#[macro_use] extern crate rocket;
 extern crate serde;
 extern crate serde_json;
 
@@ -6,17 +5,17 @@ use rocket::http::private::Array;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]
-struct Status {
+pub struct Status {
     status: i8
 }
 
 #[derive(Serialize, Deserialize)]
-struct TokenJson {
+pub struct TokenJson {
     model: String,
     created_at: String,
     response: String,
     done: bool,
-    context: Option<[i32]>,
+    context: Option<Vec<i32>>,
     total_duration: Option<i64>,
     load_duration: Option<i64>,
     prompt_eval_count: Option<i32>,
@@ -26,7 +25,8 @@ struct TokenJson {
 }
 
 #[derive(Serialize, Deserialize)]
-struct GenerateIngest {
+pub struct GenerateIngest {
     model: String,
     prompt: String
+    //TODO Support more params
 }

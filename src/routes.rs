@@ -1,11 +1,14 @@
-#[macro_use] extern crate rocket;
+
+use crate::models::GenerateIngest;
+use rocket::serde::json::Json;
 
 #[get("/")]
 pub fn ping() -> &'static str {
-    "Hello, world!"
+    ""
 }
 
-#[post("/")]
-pub fn generate() {
+#[post("/generate", format="json", data="<data>")]
+pub fn generate(data: Json<GenerateIngest>) {
 
 }
+
