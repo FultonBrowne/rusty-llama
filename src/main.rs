@@ -5,18 +5,7 @@ use llama_cpp_rs::{
     LLama,
 };
 
-fn main() {
-    let model_options = ModelOptions {
-        n_gpu_layers: 12,
-        ..Default::default()
-    };
-
-    let llama = LLama::new(
-        "./models/llama.bin".into(),
-        &model_options,
-    )
-        .unwrap();
-
+fn gen_options() -> PredictOptions {
     let predict_options = PredictOptions {
         tokens: 0,
         threads: 14,
@@ -29,12 +18,44 @@ fn main() {
         })),
         ..Default::default()
     };
-
-
-    llama
-        .predict(
-            "what are the national animals of india".into(),
-            predict_options,
-        )
-        .unwrap();
+    return predict_options;
 }
+fn main() {
+    println!("Setting up llama..");
+    let model_options = ModelOptions {
+        n_gpu_layers: 12,
+        ..Default::default()
+    };
+
+    let llama = LLama::new(
+        "./models/llama.bin".into(),
+        &model_options,
+    )
+        .unwrap();
+
+    let mut input = String::new();
+    loop {
+        // Clear the previous input
+        input.clear();
+
+        // Prompt the user
+        print!("You: ");
+        io::stdout().flush().unwrap();
+
+        // Read user input
+        io::stdin().read_line(&mut input).unwrap();
+
+        if input.trim() == "exit" {
+            println!("Goodbye!");
+            break;
+        }
+
+        llama
+            .predict(
+                input.clone(),
+                gen_options(),
+            )
+            .unwrap();
+    }
+}
+
