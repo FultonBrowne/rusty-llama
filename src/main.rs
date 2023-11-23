@@ -26,30 +26,7 @@ fn rocket() -> _ {
     )
         .unwrap();
 
-    let mut input = String::new();
-    loop {
-        // Clear the previous input
-        input.clear();
-
-        // Prompt the user
-        print!("You: ");
-        io::stdout().flush().unwrap();
-
-        // Read user input
-        io::stdin().read_line(&mut input).unwrap();
-
-        if input.trim() == "exit" {
-            println!("Goodbye!");
-            break;
-        }
-
-        let llama_output = generate::llama_generate(
-            input.clone(),
-            llama.clone(),
-            generate::gen_options()
-        );
-        println!("{}", llama_output); //TODO: switch this to a log based output
-    }
+    //let mut input = String::new();
     rocket::build().mount("/api", routes![routes::generate, routes::ping])
 }
 
