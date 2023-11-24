@@ -15,7 +15,7 @@ use rocket::tokio::sync::Mutex;
 #[macro_use] extern crate rocket;
 
 #[launch]
-fn rocket() -> _ {
+async fn rocket() -> _ {
     println!("Setting up llama..");
     let model_options = ModelOptions {
         n_gpu_layers: 12,
@@ -25,13 +25,11 @@ fn rocket() -> _ {
     let llama = LLama::new(
         "./models/llama.bin".into(),
         &model_options,
-    )
-
-        .unwrap();
+    );
 
     //let mut input = String::new();
     rocket::build()
-        .manage(Arc::new(llama.clone()))
+        //.manage(Mutex::new(llama))
         .mount("/api", routes![routes::gen, routes::ping])
 }
 
