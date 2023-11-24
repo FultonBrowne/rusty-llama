@@ -8,6 +8,7 @@ use rocket::serde::json::Json;
 use rocket::{State, tokio};
 use rocket::tokio::sync::{mpsc, Mutex};
 use serde_json::json;
+use crate::generate::gen_options;
 
 
 #[get("/")]
@@ -18,20 +19,7 @@ pub fn ping() -> &'static str {
 #[post("/generate", format = "json", data = "<data>")]
 pub fn gen(data: Json<GenerateIngest>) -> TextStream![String] { // , state: &State<Arc<LLama>>
     let (tx, mut rx) = mpsc::channel(32);
-    let predict_options = PredictOptions {
-        tokens: 0,
-        threads: 14,
-        top_k: 90,
-        top_p: 0.86,
-        token_callback: Some(Box::new(move |token| {
-            let tx_clone = tx.clone();
-            tokio::spawn(async move {
-                tx_clone.send(token).await.expect("Failed to send token");
-            });
-            true
-        })),
-        ..Default::default()
-    };
+    let predict_options = gen_options(tx);
     tokio::spawn(async move {
         generate::gen_test(data.prompt.clone(), predict_options);
     });
