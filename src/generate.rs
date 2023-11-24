@@ -1,9 +1,10 @@
 use std::io;
 use std::io::Write;
-use llama_cpp_rs::LLama;
-use llama_cpp_rs::options::{ModelOptions, PredictOptions};
+use llm::{InferenceFeedback, Model, Prompt};
+use llm::models::Llama;
 use tokio::sync::mpsc::Sender;
 
+/*
 pub(crate) fn gen_options(tx:Sender<String>) -> PredictOptions {
     return PredictOptions {
         token_callback: Some(Box::new(move |token| {
@@ -16,11 +17,34 @@ pub(crate) fn gen_options(tx:Sender<String>) -> PredictOptions {
         ..Default::default()
     };
 }
+ */
 
-pub fn llama_generate(input: String, llama: &LLama, predict_options: PredictOptions) -> String{
-    return llama.predict(
-            input.clone(),
-            predict_options,
-        )
-        .unwrap();
+pub fn llama_generate(input: String, llama: &Llama, tx:Sender<String>) {
+    let mut session = llama.start_session(Default::default());
+    let res = session.infer::<std::convert::Infallible>(
+        // model to use for text generation
+        llama,
+        // randomness provider
+        &mut rand::thread_rng(),
+        // the prompt to use for text generation, as well as other
+        // inference parameters
+        &llm::InferenceRequest {
+            prompt: (&input).into(),
+            parameters: &Default::default(),
+            play_back_previous_tokens: false,
+            maximum_token_count: None,
+        },
+        // llm::OutputRequest
+        &mut Default::default(),
+        // output callback
+        |r| match r {
+            llm::InferenceResponse::PromptToken(t) | llm::InferenceResponse::InferredToken(t) => {
+                print!("{t}");
+                std::io::stdout().flush().unwrap();
+
+                Ok(llm::InferenceFeedback::Continue)
+            }
+            _ => Ok(llm::InferenceFeedback::Continue),
+        }
+    );
 }
