@@ -9,6 +9,7 @@ use rocket::{State, tokio};
 use rocket::tokio::sync::{mpsc, Mutex};
 use serde_json::json;
 use crate::generate::gen_options;
+use crate::llama::LLamaWrapper;
 
 
 #[get("/")]
@@ -17,11 +18,14 @@ pub fn ping() -> &'static str {
 }
 
 #[post("/generate", format = "json", data = "<data>")]
-pub fn gen(data: Json<GenerateIngest>) -> TextStream![String] { // , state: &State<Arc<LLama>>
+pub fn gen(data: Json<GenerateIngest>, state: &State<Arc<LLamaWrapper>>) -> TextStream![String] {
     let (tx, mut rx) = mpsc::channel(32);
     let predict_options = gen_options(tx);
+    let llama_wrapper_clone = Arc::clone(state.inner());
     tokio::spawn(async move {
-        generate::gen_test(data.prompt.clone(), predict_options);
+        let read_guard = llama_wrapper_clone.llama.read().unwrap();
+        generate::llama_generate(data.prompt.clone(), &*read_guard, predict_options)
+        // Drop the read_guard when done
     });
     TextStream! {
         //let llama_output = generate::llama_generate("Hello there".into(), llama.clone(), predict_options);

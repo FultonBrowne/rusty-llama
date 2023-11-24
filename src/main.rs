@@ -1,6 +1,7 @@
 mod generate;
 mod routes;
 mod models;
+mod llama;
 
 use std::io;
 use std::io::Write;
@@ -10,6 +11,7 @@ use llama_cpp_rs::{
     LLama,
 };
 use rocket::tokio::sync::Mutex;
+use crate::llama::LLamaWrapper;
 
 //Enable Rocket
 #[macro_use] extern crate rocket;
@@ -22,14 +24,14 @@ async fn rocket() -> _ {
         ..Default::default()
     };
 
-    let llama = LLama::new(
+    let llama = LLamaWrapper::new(
         "./models/llama.bin".into(),
-        &model_options,
-    );
+        model_options,
+    ).expect("Failed to initialize LLama");
 
     //let mut input = String::new();
     rocket::build()
-        //.manage(Mutex::new(llama))
+        .manage(Arc::new(llama))
         .mount("/api", routes![routes::gen, routes::ping])
 }
 
