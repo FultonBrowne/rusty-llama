@@ -26,7 +26,7 @@ pub fn gen(data: Json<GenerateIngest>) -> TextStream![String] { // , state: &Sta
         token_callback: Some(Box::new(move |token| {
             let tx_clone = tx.clone();
             tokio::spawn(async move {
-                tx_clone.send(token + "\n").await.expect("Failed to send token");
+                tx_clone.send(token).await.expect("Failed to send token");
             });
             true
         })),
