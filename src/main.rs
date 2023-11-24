@@ -4,10 +4,12 @@ mod models;
 
 use std::io;
 use std::io::Write;
+use std::sync::Arc;
 use llama_cpp_rs::{
     options::{ModelOptions, PredictOptions},
     LLama,
 };
+use rocket::tokio::sync::Mutex;
 
 //Enable Rocket
 #[macro_use] extern crate rocket;
@@ -24,9 +26,12 @@ fn rocket() -> _ {
         "./models/llama.bin".into(),
         &model_options,
     )
+
         .unwrap();
 
     //let mut input = String::new();
-    rocket::build().mount("/api", routes![routes::generate, routes::ping])
+    rocket::build()
+        .manage(Arc::new(llama.clone()))
+        .mount("/api", routes![routes::gen, routes::ping])
 }
 
