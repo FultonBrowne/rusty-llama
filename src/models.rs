@@ -96,3 +96,15 @@ fn default_port() -> u16 {
 fn default_use_gpu() -> bool {
     false
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct ModelInfoQuery{
+    pub(crate) name: String
+}
+#[derive(Serialize, Deserialize)]
+pub struct ModelInfoJson{
+    pub(crate) license: String,
+    pub(crate) modelfile: String,
+    pub(crate) parameters: String,
+    pub(crate) template:String
+}

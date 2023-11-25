@@ -4,8 +4,7 @@ mod models;
 mod llm_loader;
 
 use std::fs;
-use std::sync::Arc;
-use llm::{ModelParameters};
+
 use crate::models::Config;
 
 //Enable Rocket
@@ -23,6 +22,6 @@ async fn rocket() -> _ {
     let llamas = llm_loader::load_models(config.models, config.use_gpu);
     rocket::build()
         .manage(llamas)
-        .mount("/api", routes![routes::gen, routes::ping])
+        .mount("/api", routes![routes::gen, routes::model_info, routes::ping])
 }
 
