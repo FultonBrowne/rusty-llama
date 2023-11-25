@@ -2,14 +2,22 @@ mod generate;
 mod routes;
 mod models;
 
+use std::fs;
 use std::sync::Arc;
 use llm::{ModelParameters};
+use crate::models::Config;
 
 //Enable Rocket
 #[macro_use] extern crate rocket;
 
 #[launch]
 async fn rocket() -> _ {
+    let config_data = fs::read_to_string("config.json").unwrap_or_else(|_| "{}".to_string());
+    let config: Config = serde_json::from_str(&config_data).expect("failed to parse and/or assign default Json and config");
+
+    println!("Models: {:?}", config.models);
+    println!("Port: {}", config.port);
+    println!("Use GPU: {}", config.use_gpu);
     println!("Setting up llama..");
     let mut mp = ModelParameters::default();
     mp.use_gpu = true;

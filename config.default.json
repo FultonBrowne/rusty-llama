@@ -1,0 +1,5 @@
+{
+  "models": ["llama2", "llama-uncensored"],
+  "port": 8000,
+  "use_gpu": true
+}

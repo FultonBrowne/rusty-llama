@@ -74,3 +74,25 @@ pub struct Options {
     pub rope_frequency_scale: Option<f32>,
     pub num_thread: Option<u32>,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct Config {
+    #[serde(default = "default_models")]
+    pub models: Vec<String>,
+    #[serde(default = "default_port")]
+    pub port: u16,
+    #[serde(default = "default_use_gpu")]
+    pub use_gpu: bool,
+}
+
+fn default_models() -> Vec<String> {
+    vec!["llama2".to_string()]
+}
+
+fn default_port() -> u16 {
+    8000
+}
+
+fn default_use_gpu() -> bool {
+    false
+}
