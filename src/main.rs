@@ -1,6 +1,7 @@
 mod generate;
 mod routes;
 mod models;
+mod llm_loader;
 
 use std::fs;
 use std::sync::Arc;
@@ -19,19 +20,9 @@ async fn rocket() -> _ {
     println!("Port: {}", config.port);
     println!("Use GPU: {}", config.use_gpu);
     println!("Setting up llama..");
-    let mut mp = ModelParameters::default();
-    mp.use_gpu = true;
-    mp.gpu_layers = 16.into();
-    let llama = llm::load::<llm::models::Llama>(
-        std::path::Path::new("./models/llama.bin"),
-        llm::TokenizerSource::Embedded,
-        mp.clone(),
-        llm::load_progress_callback_stdout
-    )
-        .unwrap_or_else(|err| panic!("Failed to load model: {err}"));
-    let stated_llama = Arc::new(llama);
+    let llamas = llm_loader::load_models(config.models, config.use_gpu);
     rocket::build()
-        .manage(stated_llama.clone())
+        .manage(llamas)
         .mount("/api", routes![routes::gen, routes::ping])
 }
 

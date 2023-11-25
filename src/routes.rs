@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -22,10 +23,10 @@ pub fn ping() -> &'static str {
 }
 
 #[post("/generate", format = "json", data = "<data>")]
-pub async fn gen(data: Json<Query>, state: &State<Arc<Llama>>) -> TextStream![String] {
+pub async fn gen(data: Json<Query>, state: &State<HashMap<String, Arc<Llama>>>) -> TextStream![String] {
     let start = Instant::now();
     let (tx, rx) = flume::unbounded();
-    let cloned_state = state.inner().clone();
+    let cloned_state = state.inner().get(&*data.model).expect("Model does was not defined on application startup").clone();
     let t = tokio::spawn(async move {
         let llama = cloned_state;
         generate::llama_generate(data.prompt.clone(), &llama, tx)
