@@ -2,11 +2,8 @@ mod generate;
 mod routes;
 mod models;
 
-use std::io;
-use std::io::Write;
 use std::sync::Arc;
-use rocket::tokio::sync::Mutex;
-use llm::{Model, ModelParameters};
+use llm::{ModelParameters};
 
 //Enable Rocket
 #[macro_use] extern crate rocket;

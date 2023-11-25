@@ -1,7 +1,6 @@
 extern crate serde;
 extern crate serde_json;
 
-use rocket::http::private::Array;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]

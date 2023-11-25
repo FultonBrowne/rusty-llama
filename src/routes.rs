@@ -1,15 +1,13 @@
-use std::os::unix::fs::symlink;
 use std::sync::Arc;
-use std::thread;
 
 use llm::models::Llama;
-use rocket::response::stream::TextStream;
-use crate::models::GenerateIngest;
-use crate::generate;
-use rocket::serde::json::Json;
 use rocket::{State, tokio};
+use rocket::response::stream::TextStream;
+use rocket::serde::json::Json;
 use serde_json::json;
 
+use crate::generate;
+use crate::models::GenerateIngest;
 
 #[get("/")]
 pub fn ping() -> &'static str {
@@ -18,7 +16,7 @@ pub fn ping() -> &'static str {
 
 #[post("/generate", format = "json", data = "<data>")]
 pub async fn gen(data: Json<GenerateIngest>, state: &State<Arc<Llama>>) -> TextStream![String] {
-    let (tx, mut rx) = flume::unbounded();
+    let (tx, rx) = flume::unbounded();
     let cloned_state = state.inner().clone();
     let t = tokio::spawn(async move {
         let llama = cloned_state;

@@ -1,27 +1,10 @@
-use std::io;
-use std::io::Write;
-use std::sync::Arc;
+
 use flume::Sender;
-use llm::{InferenceFeedback, Model, Prompt};
+use llm::{InferenceFeedback, InferenceStats, Model};
 use llm::models::Llama;
-use rocket::futures::task::SpawnExt;
 
-/*
-pub(crate) fn gen_options(tx:Sender<String>) -> PredictOptions {
-    return PredictOptions {
-        token_callback: Some(Box::new(move |token| {
-            let tx_clone = tx.clone();
-            tokio::spawn(async move {
-                tx_clone.send(token).await.expect("Failed to send token");
-            });
-            true
-        })),
-        ..Default::default()
-    };
-}
- */
 
-pub fn llama_generate(input: String, llama: &Llama, tx:Sender<String>) {
+pub fn llama_generate(input: String, llama: &Llama, tx:Sender<String>) -> InferenceStats {
     let mut session = llama.start_session(Default::default());
     let res = session.infer::<std::convert::Infallible>(
         llama,
@@ -42,5 +25,6 @@ pub fn llama_generate(input: String, llama: &Llama, tx:Sender<String>) {
             }
             _ => Ok(InferenceFeedback::Continue),
         }
-    );
+    ).expect("Llama generation gave an error (generate.rs");
+    res
 }
