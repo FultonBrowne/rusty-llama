@@ -17,20 +17,15 @@ async fn rocket() -> _ {
     let mut mp = ModelParameters::default();
     mp.use_gpu = true;
     let llama = llm::load::<llm::models::Llama>(
-        // path to GGML file
         std::path::Path::new("./models/llama.bin"),
-        // llm::TokenizerSource
         llm::TokenizerSource::Embedded,
-        // llm::ModelParameters
         mp.clone(),
-        // load progress callback
         llm::load_progress_callback_stdout
     )
         .unwrap_or_else(|err| panic!("Failed to load model: {err}"));
-
-    //let mut input = String::new();
+    let stated_llama = Arc::new(llama);
     rocket::build()
-        .manage(llama)
+        .manage(stated_llama.clone())
         .mount("/api", routes![routes::gen, routes::ping])
 }
 

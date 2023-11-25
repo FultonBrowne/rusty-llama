@@ -1,8 +1,10 @@
 use std::io;
 use std::io::Write;
+use std::sync::Arc;
+use flume::Sender;
 use llm::{InferenceFeedback, Model, Prompt};
 use llm::models::Llama;
-use tokio::sync::mpsc::Sender;
+use rocket::futures::task::SpawnExt;
 
 /*
 pub(crate) fn gen_options(tx:Sender<String>) -> PredictOptions {
@@ -22,9 +24,7 @@ pub(crate) fn gen_options(tx:Sender<String>) -> PredictOptions {
 pub fn llama_generate(input: String, llama: &Llama, tx:Sender<String>) {
     let mut session = llama.start_session(Default::default());
     let res = session.infer::<std::convert::Infallible>(
-        // model to use for text generation
         llama,
-        // randomness provider
         &mut rand::thread_rng(),
         // the prompt to use for text generation, as well as other
         // inference parameters
@@ -34,17 +34,13 @@ pub fn llama_generate(input: String, llama: &Llama, tx:Sender<String>) {
             play_back_previous_tokens: false,
             maximum_token_count: None,
         },
-        // llm::OutputRequest
         &mut Default::default(),
-        // output callback
-        |r| match r {
+         |r| match r {
             llm::InferenceResponse::PromptToken(t) | llm::InferenceResponse::InferredToken(t) => {
-                print!("{t}");
-                std::io::stdout().flush().unwrap();
-
-                Ok(llm::InferenceFeedback::Continue)
+                tx.send(t).expect("Failed to send token to the main thread (llama_generate)");
+                Ok(InferenceFeedback::Continue)
             }
-            _ => Ok(llm::InferenceFeedback::Continue),
+            _ => Ok(InferenceFeedback::Continue),
         }
     );
 }
