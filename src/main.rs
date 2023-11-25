@@ -13,6 +13,7 @@ async fn rocket() -> _ {
     println!("Setting up llama..");
     let mut mp = ModelParameters::default();
     mp.use_gpu = true;
+    mp.gpu_layers = 16.into();
     let llama = llm::load::<llm::models::Llama>(
         std::path::Path::new("./models/llama.bin"),
         llm::TokenizerSource::Embedded,

@@ -15,11 +15,11 @@ pub struct TokenJson {
     pub response: String,
     pub done: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub context: Option<Vec<i32>>,
+    pub context: Option<Vec<u32>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub total_duration: Option<i64>,
+    pub total_duration: Option<u128>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub load_duration: Option<i64>,
+    pub load_duration: Option<u128>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt_eval_count: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]

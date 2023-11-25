@@ -1,10 +1,13 @@
 
 use flume::Sender;
-use llm::{InferenceFeedback, InferenceStats, Model};
+use llm::{InferenceFeedback, InferenceStats, Model, TokenId};
 use llm::models::Llama;
 
-
-pub fn llama_generate(input: String, llama: &Llama, tx:Sender<String>) -> InferenceStats {
+pub struct OutputData {
+    pub interface_stats: InferenceStats,
+    pub context: Vec<TokenId>
+}
+pub fn llama_generate(input: String, llama: &Llama, tx:Sender<String>) -> OutputData {
     let mut session = llama.start_session(Default::default());
     let res = session.infer::<std::convert::Infallible>(
         llama,
@@ -26,5 +29,5 @@ pub fn llama_generate(input: String, llama: &Llama, tx:Sender<String>) -> Infere
             _ => Ok(InferenceFeedback::Continue),
         }
     ).expect("Llama generation gave an error (generate.rs");
-    res
+    OutputData{interface_stats: res, context: session.tokens().to_vec() }
 }

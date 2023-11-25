@@ -50,13 +50,14 @@ pub async fn gen(data: Json<GenerateIngest>, state: &State<Arc<Llama>>) -> TextS
             yield j;
         }
         // wrap it all up
-        let stats = t.await.expect("Llama thread failed to await");
+        let model_out = t.await.expect("Llama thread failed to await");
+        let stats = model_out.interface_stats;
         let j = json!(TokenJson{
                 model: "TODO".to_string(),
                 created_at: time_string(),
                 done: true,
                 response: String::from(""),
-                context: None,
+                context: model_out.context.into(),
                 total_duration: start.elapsed().as_nanos().into(),
                 load_duration: load_duration.as_nanos().into(),
                 prompt_eval_count: stats.prompt_tokens.into(),
