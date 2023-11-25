@@ -12,13 +12,11 @@ pub fn llama_generate(input: String, llama: &Llama, tx:Sender<String>) -> Output
     let res = session.infer::<std::convert::Infallible>(
         llama,
         &mut rand::thread_rng(),
-        // the prompt to use for text generation, as well as other
-        // inference parameters
         &llm::InferenceRequest {
             prompt: (&input).into(),
             parameters: &Default::default(),
             play_back_previous_tokens: false,
-            maximum_token_count: None,
+            maximum_token_count: None
         },
         &mut Default::default(),
          |r| match r {

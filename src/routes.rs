@@ -10,7 +10,7 @@ use rocket::serde::json::Json;
 use serde_json::json;
 
 use crate::generate;
-use crate::models::{GenerateIngest, TokenJson};
+use crate::models::{Query, TokenJson};
 
 fn time_string() -> String {
     let now = Utc::now();
@@ -22,7 +22,7 @@ pub fn ping() -> &'static str {
 }
 
 #[post("/generate", format = "json", data = "<data>")]
-pub async fn gen(data: Json<GenerateIngest>, state: &State<Arc<Llama>>) -> TextStream![String] {
+pub async fn gen(data: Json<Query>, state: &State<Arc<Llama>>) -> TextStream![String] {
     let start = Instant::now();
     let (tx, rx) = flume::unbounded();
     let cloned_state = state.inner().clone();

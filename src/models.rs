@@ -31,8 +31,46 @@ pub struct TokenJson {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct GenerateIngest {
+pub struct Query {
     pub model: String,
-    pub prompt: String
-    //TODO Support more params
+    pub prompt: String,
+    pub stream: Option<bool>,
+    pub options: Option<Options>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Options {
+    pub num_keep: Option<u32>,
+    pub seed: Option<u32>,
+    pub num_predict: Option<u32>,
+    pub top_k: Option<u32>,
+    pub top_p: Option<f32>,
+    pub tfs_z: Option<f32>,
+    pub typical_p: Option<f32>,
+    pub repeat_last_n: Option<u32>,
+    pub temperature: Option<f32>,
+    pub repeat_penalty: Option<f32>,
+    pub presence_penalty: Option<f32>,
+    pub frequency_penalty: Option<f32>,
+    pub mirostat: Option<u32>,
+    pub mirostat_tau: Option<f32>,
+    pub mirostat_eta: Option<f32>,
+    pub penalize_newline: Option<bool>,
+    pub stop: Option<Vec<String>>,
+    pub numa: Option<bool>,
+    pub num_ctx: Option<u32>,
+    pub num_batch: Option<u32>,
+    pub num_gqa: Option<u32>,
+    pub num_gpu: Option<u32>,
+    pub main_gpu: Option<u32>,
+    pub low_vram: Option<bool>,
+    pub f16_kv: Option<bool>,
+    pub logits_all: Option<bool>,
+    pub vocab_only: Option<bool>,
+    pub use_mmap: Option<bool>,
+    pub use_mlock: Option<bool>,
+    pub embedding_only: Option<bool>,
+    pub rope_frequency_base: Option<f32>,
+    pub rope_frequency_scale: Option<f32>,
+    pub num_thread: Option<u32>,
 }
