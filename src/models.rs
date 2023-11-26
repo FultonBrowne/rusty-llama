@@ -3,6 +3,7 @@ extern crate serde_json;
 
 use serde::{Serialize, Deserialize};
 
+/* So by models I meant data models -- Silly me */
 #[derive(Serialize, Deserialize)]
 pub struct Status {
     status: i8
@@ -75,20 +76,6 @@ pub struct Options {
     pub num_thread: Option<u32>,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct Config {
-    #[serde(default = "default_models")]
-    pub models: Vec<String>,
-    #[serde(default = "default_port")]
-    pub port: u16,
-    #[serde(default = "default_use_gpu")]
-    pub use_gpu: bool,
-}
-
-fn default_models() -> Vec<String> {
-    vec!["llama2".to_string()]
-}
-
 fn default_port() -> u16 {
     8000
 }
@@ -99,12 +86,67 @@ fn default_use_gpu() -> bool {
 
 #[derive(Serialize, Deserialize)]
 pub struct ModelInfoQuery{
-    pub(crate) name: String
+    pub name: String
 }
 #[derive(Serialize, Deserialize)]
 pub struct ModelInfoJson{
-    pub(crate) license: String,
-    pub(crate) modelfile: String,
-    pub(crate) parameters: String,
-    pub(crate) template:String
+    pub license: String,
+    pub modelfile: String,
+    pub parameters: String,
+    pub template:String
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Config {
+    pub models: Vec<ModelDefinition>,
+}
+
+/* The model config and definition all based of Ollama's Modelfile so we can fully support them */
+#[derive(Serialize, Deserialize)]
+pub struct ModelConfig {
+    pub mirostat: Option<i32>,       // default: 0
+    pub mirostat_eta: Option<f32>,   // default: 0.1
+    pub mirostat_tau: Option<f32>,   // default: 5.0
+    pub num_ctx: Option<i32>,        // default: 2048
+    pub num_gqa: Option<i32>,        // no default specified
+    pub num_gpu: Option<i32>,        // no default specified
+    pub num_thread: Option<i32>,     // no default specified
+    pub repeat_last_n: Option<i32>,  // default: 64
+    pub repeat_penalty: Option<f32>, // default: 1.1
+    pub temperature: Option<f32>,    // default: 0.8
+    pub seed: Option<i32>,           // default: 0
+    pub stop: Option<String>,        // no default specified
+    pub tfs_z: Option<f32>,          // default: 1
+    pub num_predict: Option<i32>,    // default: 128
+    pub top_k: Option<i32>,          // default: 40
+    pub top_p: Option<f32>,          // default: 0.9
+}
+
+impl Default for ModelConfig {
+    fn default() -> Self {
+        ModelConfig {
+            mirostat: Some(0),
+            mirostat_eta: Some(0.1),
+            mirostat_tau: Some(5.0),
+            num_ctx: Some(2048),
+            num_gqa: None,
+            num_gpu: None,
+            num_thread: None,
+            repeat_last_n: Some(64),
+            repeat_penalty: Some(1.1),
+            temperature: Some(0.8),
+            seed: Some(0),
+            stop: None,
+            tfs_z: Some(1.0),
+            num_predict: Some(128),
+            top_k: Some(40),
+            top_p: Some(0.9),
+        }
+    }
+}
+#[derive(Serialize, Deserialize)]
+pub struct ModelDefinition {
+    pub path: String,
+    pub name: String,
+    pub config: ModelConfig
 }
