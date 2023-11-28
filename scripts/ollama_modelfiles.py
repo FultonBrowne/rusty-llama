@@ -41,6 +41,50 @@ class ModelDefinition:
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
+class ModelfileParser:
+    def __init__(self, modelfile_content):
+        self.modelfile_content = modelfile_content
+        self.config = ModelConfig()  # Assuming ModelConfig class is defined as before
+        self.from_content = None  # Placeholder for storing 'FROM' related data
+
+    def parse(self):
+        for line in self.modelfile_content.splitlines():
+            self._parse_line(line.strip())
+
+        return self.config
+
+    def _parse_line(self, line):
+        if line.startswith('PARAMETER'):
+            self._parse_parameter(line)
+        elif line.startswith('FROM'):
+            self._parse_from(line)
+        # Add parsing for TEMPLATE, SYSTEM, ADAPTER, LICENSE as needed
+
+    def _parse_parameter(self, line):
+        parts = line.split()
+        if len(parts) < 3:
+            return  # Invalid line format
+
+        parameter, value = parts[1], parts[2]
+        if hasattr(self.config, parameter):
+            value = self._convert_value(getattr(self.config, parameter), value)
+            setattr(self.config, parameter, value)
+
+    def _parse_from(self, line):
+        from_content = ' '.join(line.split()[1:])
+        self.from_content = from_content
+
+
+    def _convert_value(self, current_value, new_value_str):
+        if isinstance(current_value, int):
+            return int(new_value_str)
+        elif isinstance(current_value, float):
+            return float(new_value_str)
+        elif isinstance(current_value, str):
+            return new_value_str
+        else:
+            return new_value_str  # Default case, possibly needs handling for other types
+
 
 def pull_models(model_names):
     o = []
@@ -85,60 +129,6 @@ def main():
     print(json.dumps(config, indent=4))
 
 
-class ModelfileParser:
-    def __init__(self, modelfile_content):
-        self.modelfile_content = modelfile_content
-        self.config = ModelConfig()  # Assuming ModelConfig class is defined as before
-        self.from_content = None  # Placeholder for storing 'FROM' related data
-
-    def parse(self):
-        for line in self.modelfile_content.splitlines():
-            self._parse_line(line.strip())
-
-        return self.config
-
-    def _parse_line(self, line):
-        if line.startswith('PARAMETER'):
-            self._parse_parameter(line)
-        elif line.startswith('FROM'):
-            self._parse_from(line)
-        # Add parsing for TEMPLATE, SYSTEM, ADAPTER, LICENSE as needed
-
-    def _parse_parameter(self, line):
-        parts = line.split()
-        if len(parts) < 3:
-            return  # Invalid line format
-
-        parameter, value = parts[1], parts[2]
-        if hasattr(self.config, parameter):
-            value = self._convert_value(getattr(self.config, parameter), value)
-            setattr(self.config, parameter, value)
-
-    def _parse_from(self, line):
-        # Placeholder for handling 'FROM' instruction
-        # For now, we can just store the line or perform basic processing
-        self.from_content = line
-
-    def _convert_value(self, current_value, new_value_str):
-        if isinstance(current_value, int):
-            return int(new_value_str)
-        elif isinstance(current_value, float):
-            return float(new_value_str)
-        elif isinstance(current_value, str):
-            return new_value_str
-        else:
-            return new_value_str  # Default case, possibly needs handling for other types
-
 
 if __name__ == "__main__":
-    modelfile_content = """
-    PARAMETER mirostat 1
-    PARAMETER mirostat_eta 0.2
-    PARAMETER num_ctx 4096
-    FROM some_local_file_or_link
-    """
-    parser = ModelfileParser(modelfile_content)
-    model_config = parser.parse()
-    print(model_config.to_json())
-    print("From content:", parser.from_content)
     main()
