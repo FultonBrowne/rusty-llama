@@ -41,6 +41,7 @@ class ModelDefinition:
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
+
 class ModelfileParser:
     def __init__(self, modelfile_content):
         self.modelfile_content = modelfile_content
@@ -72,8 +73,10 @@ class ModelfileParser:
 
     def _parse_from(self, line):
         from_content = ' '.join(line.split()[1:])
-        self.from_content = from_content
+        # TODO: Get the model name and trace it up in to a link(?) using the pull methods
+        # TODO: make the from statements grab more info like the model config params
 
+        self.from_content = from_content
 
     def _convert_value(self, current_value, new_value_str):
         if isinstance(current_value, int):
@@ -84,6 +87,13 @@ class ModelfileParser:
             return new_value_str
         else:
             return new_value_str  # Default case, possibly needs handling for other types
+
+    def to_json(self):
+        # Custom function to skip None values
+        def skip_none(obj):
+            return {k: v for k, v in obj.__dict__.items() if v is not None}
+
+        return json.dumps(skip_none(self), sort_keys=True, indent=4)
 
 
 def pull_models(model_names):
@@ -127,7 +137,6 @@ def main():
         return
 
     print(json.dumps(config, indent=4))
-
 
 
 if __name__ == "__main__":
