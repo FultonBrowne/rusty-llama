@@ -76,14 +76,6 @@ pub struct Options {
     pub num_thread: Option<u32>,
 }
 
-fn default_port() -> u16 {
-    8000
-}
-
-fn default_use_gpu() -> bool {
-    false
-}
-
 #[derive(Serialize, Deserialize)]
 pub struct ModelInfoQuery{
     pub name: String
