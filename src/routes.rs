@@ -39,7 +39,7 @@ pub async fn gen(data: Json<Query>, state: &State<HashMap<String, Arc<Llama>>>) 
     let start = Instant::now();
     let model = String::from(&data.model);
     let (tx, rx) = flume::unbounded();
-    let cloned_state = state.inner().get(&model).expect("Model was not defined on application startup").clone();
+    let cloned_state = state.inner().get(&model.clone()).expect("Model was not defined on application startup").clone();
     let t = tokio::spawn(async move {
         let llama = cloned_state;
         generate::llama_generate(data.prompt.clone(), &llama, tx)
@@ -47,20 +47,7 @@ pub async fn gen(data: Json<Query>, state: &State<HashMap<String, Arc<Llama>>>) 
     let load_duration = start.elapsed();
     TextStream! {
         while let Ok(token) = rx.recv() {
-            let j = json!(TokenJson{
-                model: model.to_string(),
-                created_at: time_string(),
-                done: false,
-                response: token,
-                context: None,
-                total_duration: None,
-                load_duration: None,
-                prompt_eval_count: None,
-                prompt_eval_duration: None,
-                eval_count: None,
-                eval_duration: None
-            }).to_string() + "\n";
-            println!("{}", j);
+            let j = json!(TokenJson::single_token_output(model.clone(), token, time_string())).to_string() + "\n";
             yield j;
         }
         // wrap it all up

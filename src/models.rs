@@ -31,6 +31,24 @@ pub struct TokenJson {
     pub eval_duration: Option<u128>
 }
 
+impl TokenJson {
+    pub fn single_token_output(model: String, token: String, created_at: String) -> Self{
+         TokenJson{
+            model,
+            created_at,
+            done: false,
+            response: token,
+            context: None,
+            total_duration: None,
+            load_duration: None,
+            prompt_eval_count: None,
+            prompt_eval_duration: None,
+            eval_count: None,
+            eval_duration: None
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Query {
     pub model: String,

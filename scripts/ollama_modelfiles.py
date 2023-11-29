@@ -100,7 +100,7 @@ def pull_models(model_names):
     o = []
     for i in model_names:
         model_config = ModelConfig()
-        model_def = ModelDefinition(path="/path/to/model", name=i, config=model_config)
+        model_def = ModelDefinition(path=i, name="test", config=model_config)
         o.append(model_def)
     return o
 
